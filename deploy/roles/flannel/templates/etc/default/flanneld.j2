@@ -1,0 +1,17 @@
+ # flannel Upstart and SysVinit configuration file
+
+{% macro initial_cluster() -%}
+{% for host in groups[etcd_peers_group] -%}
+   {% if loop.last -%}
+{{ etcd_peer_url_scheme }}://{{ hostvars[host]['ansible_' + etcd_peer_interface]['ipv4']['address'] }}:{{ etcd_client_port }}
+   {%- else -%}
+{{ etcd_peer_url_scheme }}://{{ hostvars[host]['ansible_' + etcd_peer_interface]['ipv4']['address'] }}:{{ etcd_client_port }},
+   {%- endif -%}
+{% endfor -%}
+{% endmacro -%}
+
+ # Customize kube-apiserver binary location
+ FLANNEL="/usr/local/sbin/flanneld"
+
+ # Use FLANNEL_OPTS to modify the start/restart options
+ FLANNEL_OPTS="--etcd-endpoints={{ initial_cluster() }}"

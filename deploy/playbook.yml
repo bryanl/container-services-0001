@@ -1,0 +1,12 @@
+- hosts: master
+  pre_tasks:
+    - apt: update_cache=yes cache_valid_time=3600
+  roles:
+    - common
+    - role: etcd
+      etcd_interface: eth1
+      etcd_peers_group: master
+    - role: flannel
+      etcd_interface: eth1
+      etcd_peers_group: master
+

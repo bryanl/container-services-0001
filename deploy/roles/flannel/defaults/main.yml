@@ -1,0 +1,11 @@
+---
+flannel_version: 0.5.5
+flannel_platform: linux
+flannel_arch: amd64
+flannel_release: "flannel-{{ flannel_version }}-{{ flannel_platform  }}-{{ flannel_arch }}"
+flannel_download_url: "https://github.com/coreos/flannel/releases/download/v{{ flannel_version }}/{{ flannel_release }}.tar.gz"
+flannel_download_dir: /usr/local/src
+flannel_download_filename: "{{ flannel_release }}.tar.gz"
+flannel_dir: /usr/local/sbin
+flannel_cmd: "{{ flannel_dir }}/flanneld"
+

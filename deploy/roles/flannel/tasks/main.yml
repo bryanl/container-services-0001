@@ -1,0 +1,26 @@
+---
+- name: download flannel
+  get_url: url={{ flannel_download_url }} dest={{ flannel_download_dir }}/{{ flannel_download_filename }}
+
+- name: unarchive flannel
+  unarchive: copy=no
+             src={{ flannel_download_dir }}/{{ flannel_download_filename }}
+             dest={{ flannel_download_dir }}
+             creates="{{ flannel_download_dir }}/flannel-{{ flannel_version }}/flanneld"
+
+- name: copy binaries from archive into flannel dir
+  shell: rsync -ci {{ flannel_download_dir }}/flannel-{{ flannel_version }}/{{ item }} {{ flannel_dir }}
+  register: rsync_result
+  changed_when: "rsync_result.stdout != ''"
+  with_items:
+    - flanneld
+
+- name: flannel upstart defaults
+  template: src=etc/default/flanneld.j2 dest=/etc/default/flanneld
+  notify:
+    - restart flanneld
+
+- name: flannel upstart
+  template: src=etc/init/flanneld.conf.j2 dest=/etc/init/flanneld.conf
+  notify:
+    - restart flanneld
