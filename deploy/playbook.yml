@@ -1,9 +1,17 @@
 - hosts: master
   pre_tasks:
     - apt: update_cache=yes cache_valid_time=3600
+  vars_prompt:
+    - name: run_common
+      prompt: "run common?"
+      default: "Y"
+
   roles:
-    - common
+    - { role: common, when: run_common == "Y" or run_common == "y" }
     - role: etcd
+      etcd_interface: eth1
+      etcd_peers_group: master
+    - role: etcd_client
       etcd_interface: eth1
       etcd_peers_group: master
     - role: flannel

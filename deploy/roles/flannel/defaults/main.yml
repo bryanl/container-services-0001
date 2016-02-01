@@ -9,3 +9,4 @@ flannel_download_filename: "{{ flannel_release }}.tar.gz"
 flannel_dir: /usr/local/sbin
 flannel_cmd: "{{ flannel_dir }}/flanneld"
 
+flannel_network_config: { "Network": "172.18.0.0/16" }

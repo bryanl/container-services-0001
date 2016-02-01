@@ -1,23 +1,24 @@
 ---
+- name: check for etcdctl
+  stat: path="{{ etcdctl_cmd }}"
+  register: etcdctl_file
+
 - name: download etcd
   get_url: url={{ etcd_download_url }} dest={{ etcd_download_dir }}/{{ etcd_download_filename }}
+  when: etcdctl_file.stat.isreg != true
 
 - name: unarchive etcd
   unarchive: copy=no
              src={{ etcd_download_dir }}/{{ etcd_download_filename }}
              dest={{ etcd_download_dir }}
              creates="{{ etcd_download_dir }}/{{ etcd_release }}/etcd"
+  when: etcdctl_file.stat.isreg != true
 
 - name: copy binaries from archive into etcd dir
   shell: rsync -ci {{ etcd_download_dir }}/{{ etcd_release }}/{{ item }} {{ etcd_dir }}
-  register: rsync_result
-  changed_when: "rsync_result.stdout != ''"
+  when: etcdctl_file.stat.isreg != true
   with_items:
-    - etcd
     - etcdctl
 
-- name: etcd upstart service
-  template: src=etc/init/etcd.conf.j2 dest=/etc/init/etcd.conf
-  notify:
-    - restart etcd
-
+- name: set default etcdctl endpoints
+  template: src=etc/profile.d/etcdctl.sh.j2 dest=/etc/profile.d/etcdctl.sh

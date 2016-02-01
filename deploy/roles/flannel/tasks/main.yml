@@ -15,6 +15,15 @@
   with_items:
     - flanneld
 
+- name: flannel check for config in etcd
+  shell: /usr/local/sbin/etcdctl get /coreos.com/network/config
+  ignore_errors: yes
+  register: flannel_config
+
+- name: flannel set config in etcd
+  shell: /usr/local/sbin/etcdctl set /coreos.com/network/config {{ flannel_network_config }}
+  when: flannel_config.rc != 0
+
 - name: flannel upstart defaults
   template: src=etc/default/flanneld.j2 dest=/etc/default/flanneld
   notify:
@@ -24,3 +33,5 @@
   template: src=etc/init/flanneld.conf.j2 dest=/etc/init/flanneld.conf
   notify:
     - restart flanneld
+
+
